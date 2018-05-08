@@ -4,10 +4,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
+
+import ru.project.cscm.calc.base.EventPublishService;
 
 /**
  * Базовый контроллер с обработкой ошибок.
@@ -18,6 +21,9 @@ import org.springframework.web.client.HttpClientErrorException;
 @ControllerAdvice
 public abstract class ControllerWithExceptionHandler {
 
+	@Autowired
+	private EventPublishService publishService;
+	
 	@ExceptionHandler(value = RuntimeException.class)
 	public void handle(final RuntimeException e,
 			final HttpServletResponse response, final HttpServletRequest request) {

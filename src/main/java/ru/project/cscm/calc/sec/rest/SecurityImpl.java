@@ -3,6 +3,7 @@ package ru.project.cscm.calc.sec.rest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -32,10 +33,10 @@ public class SecurityImpl implements Security {
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 		final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
 				userDetails, password, userDetails.getAuthorities());
-		authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+		final Authentication auth = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 
 		if (usernamePasswordAuthenticationToken.isAuthenticated()) {
-			SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+			SecurityContextHolder.getContext().setAuthentication(auth);
 		}
 	}
 
@@ -44,6 +45,7 @@ public class SecurityImpl implements Security {
 		tokenStore.findTokensByClientId(SecurityContextHolder.getContext().getAuthentication().getName())
 				.forEach(token -> tokenStore.removeAccessToken(token));
 		SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
+		SecurityContextHolder.clearContext();
 	}
 
 }
