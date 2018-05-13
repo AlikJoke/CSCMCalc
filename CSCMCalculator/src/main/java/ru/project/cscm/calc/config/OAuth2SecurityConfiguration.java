@@ -14,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.OAuth2ClientContext;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
@@ -24,8 +23,9 @@ import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import ru.project.cscm.calc.base.Properties;
+import ru.project.cscm.calc.rest.OptionsCorsFilter;
 import ru.project.cscm.calc.sec.impl.Sha512Encoder;
 import ru.project.cscm.calc.sec.rest.AuthServerFilter;
 
@@ -36,16 +36,13 @@ import ru.project.cscm.calc.sec.rest.AuthServerFilter;
 public class OAuth2SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private OAuth2ClientContext oauth2ClientContext;
-	
-	@Autowired
 	private ClientDetailsService clientDetailsService;
 	
 	@Autowired
 	private UserDetailsService userDetailsService;
 	
 	@Autowired
-	private Properties props;
+	private OptionsCorsFilter corsFilter;
 	
 	@Autowired
 	private AuthServerFilter filter;
@@ -62,7 +59,7 @@ public class OAuth2SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.cors().and().csrf().disable().anonymous().disable().requiresChannel().and().authorizeRequests()
+		http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class).cors().and().csrf().disable().anonymous().disable().requiresChannel().and().authorizeRequests()
 				.antMatchers("/oauth/token").permitAll().and().addFilterBefore(filter, BasicAuthenticationFilter.class);
 	}
 
