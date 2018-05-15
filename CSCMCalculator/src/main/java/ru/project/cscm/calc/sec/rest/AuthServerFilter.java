@@ -41,6 +41,8 @@ public class AuthServerFilter extends GenericFilterBean {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	private static final String OAUTH_TYPE = "Bearer";
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
@@ -48,20 +50,20 @@ public class AuthServerFilter extends GenericFilterBean {
 		final HttpServletRequest httpRequest = (HttpServletRequest) request;
 		final HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-		if (!httpResponse.isCommitted()) {
+		final String authHeader = httpRequest.getHeader("Authorization");
+		if (StringUtils.isEmpty(authHeader)) {
+			httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+		}
+		
+		final String[] parts = authHeader.split(" ");
+		if (parts.length != 2) {
+			httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
+		
+		if (!httpResponse.isCommitted() && (!RequestMethod.OPTIONS.name().equalsIgnoreCase(httpRequest.getMethod()))) {
 
 			if (httpRequest.getRequestURI().startsWith("/oauth/token")
 					&& RequestMethod.POST.name().equalsIgnoreCase(httpRequest.getMethod())) {
-
-				final String authHeader = httpRequest.getHeader("Authorization");
-				if (StringUtils.isEmpty(authHeader)) {
-					httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-				}
-
-				final String[] parts = authHeader.split(" ");
-				if (parts.length != 2) {
-					httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
-				}
 
 				final String args = new String(Base64.getDecoder().decode(parts[1].getBytes("UTF-8")));
 
@@ -78,19 +80,22 @@ public class AuthServerFilter extends GenericFilterBean {
 
 				security.login(authParams[0], encodedPassword);
 			} else {
-				final String token = httpRequest.getParameter("access_token");
-				if (!StringUtils.isEmpty(token)) {
-					
-					final OAuth2AccessToken tokenObject = tokenStore.readAccessToken(token);
-					if (tokenObject == null) {
-						httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token isn't valid");
-					} else if (tokenObject.isExpired()) {
-						httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is expired");
-					}
+				if (!OAUTH_TYPE.equalsIgnoreCase(parts[0])) {
+					httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authorization type must be BEARER");
 				} else {
-					httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access token is not present");
-				}
+					final String token = parts[1];
+					if (!StringUtils.isEmpty(token)) {
 
+						final OAuth2AccessToken tokenObject = tokenStore.readAccessToken(token);
+						if (tokenObject == null) {
+							httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token isn't valid");
+						} else if (tokenObject.isExpired()) {
+							httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is expired");
+						}
+					} else {
+						httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access token is not present");
+					}
+				}
 			}
 
 		}
