@@ -1,5 +1,7 @@
 package ru.project.cscm.calc.rest;
 
+import java.util.ArrayList;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +16,7 @@ public class StatsComposer {
 	public SummaryUserStatistics generateStats(@NotNull final GenerationParamsResource params) {
 		// TODO
 		
-		return new SummaryUserStatistics(SecurityContextHolder.getContext().getAuthentication().getName(), null, null);
+		return new SummaryUserStatistics(SecurityContextHolder.getContext().getAuthentication().getName(), 
+				new ArrayList<>(), new ArrayList<>());
 	}
 }
