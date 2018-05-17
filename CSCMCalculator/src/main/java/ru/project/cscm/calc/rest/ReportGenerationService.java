@@ -1,5 +1,7 @@
 package ru.project.cscm.calc.rest;
 
+import io.swagger.annotations.Api;
+
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -31,6 +33,8 @@ import ru.project.cscm.calc.base.jasper.SimpleReportBeanCollectionCreator;
 
 import com.google.common.net.MediaType;
 
+@Api(value = "Generation of reports by statistics", 
+	description = "Service for generation of of reports by statistics in xls")
 @RestController
 @RequestMapping("/CSCM")
 public class ReportGenerationService extends ControllerWithExceptionHandler {
@@ -52,7 +56,7 @@ public class ReportGenerationService extends ControllerWithExceptionHandler {
 			final HttpServletResponse response) {
 		response.setHeader("Allow", "GET, OPTIONS");
 		if (request.getHeader("Origin") != null) {
-			response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+			response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
 		}
 	}
 

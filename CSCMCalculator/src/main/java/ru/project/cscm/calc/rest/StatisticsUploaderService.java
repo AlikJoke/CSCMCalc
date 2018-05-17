@@ -1,5 +1,7 @@
 package ru.project.cscm.calc.rest;
 
+import io.swagger.annotations.Api;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,6 +25,7 @@ import ru.project.cscm.calc.base.StatisticsService;
 import ru.project.cscm.calc.protobuf.AtmTransListProtos;
 import ru.project.cscm.calc.protobuf.AtmTransListProtos.AtmTransList;
 
+@Api(value = "Uploading of statistics", description = "Service for uploading of statistics in db")
 @Controller
 @RequestMapping("/CSCM")
 public class StatisticsUploaderService extends ControllerWithExceptionHandler {

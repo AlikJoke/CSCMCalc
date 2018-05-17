@@ -1,5 +1,7 @@
 package ru.project.cscm.calc.rest;
 
+import io.swagger.annotations.Api;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.project.cscm.calc.base.StatisticsService;
 import ru.project.cscm.calc.base.items.SummaryUserStatistics;
 
+@Api(value = "Generation of statistics", 
+	description = "Service for generation of statistics: generate statistics by params")
 @RestController
 @RequestMapping("/CSCM")
 public class GenerationStatisticsService extends ControllerWithExceptionHandler {
